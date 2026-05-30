@@ -51,7 +51,7 @@ RE24 is batting-team-relative.
 ## Install
 
 ```bash
-git clone https://github.com/<you>/wayball
+git clone https://github.com/pvtvega/wayball
 cd wayball
 WAYBALL_TEAM=TOR ./install.sh     # creates .venv, installs the one dependency
 ```
