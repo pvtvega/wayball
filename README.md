@@ -1,85 +1,113 @@
-# wayball — Waybar Blue Jays live-score module
+# wayball
 
-A Waybar custom module that shows live Toronto Blue Jays score info in the bar,
-and a full text **scorebug** on hover with the base-out diamond, run expectancy,
-**Leverage Index**, win probability, and the last few plays (RE24 / WPA).
+A [Waybar](https://github.com/Alexays/Waybar) custom module for **live MLB
+scores** with an analytical hover **scorebug** — base-out diamond, run
+expectancy, **Leverage Index**, win probability, and the last few plays with
+**RE24** and **WPA**. Works for any MLB team. Click to open MLB Gameday.
 
 ```
- TOR 3-2 ▲7  ⚡2.1      (live — score, inning, leverage chip when tense)
- @ BAL 7:05p           (idle — next scheduled game)
+ TOR 3-2 ▲7  ⚡2.1      live — your team first, inning, leverage chip when tense
+ @ BAL 7:05p           idle — next scheduled game
 ```
 
-Click the module to open the dashboard. Hover for the scorebug.
+Hover for the full scorebug:
+
+```
+TOR 3   @   BAL 2
+Bottom 7
+   ◆
+◇   ◆
+●●○  Runners on 1st & 3rd
+Run expectancy  1.21
+Leverage  2.10× (elevated)
+TOR win  64%
+
+Recent plays
+▼ 7 TOR Single ⚡2.1  +0.43 +6.2%
+...
+```
 
 ## How it works
 
-All the hard numbers (RE24, WPA, Leverage Index, run expectancy) are computed by
-the sibling [`bluejays-dashboard`](../bluejays-dashboard) backend. This module
-imports that project's `get_live_winprob()` directly and runs under its
-virtualenv — **no dev server needs to be running**. It polls MLB every 30s during
-a game and every 10 min when idle.
+wayball polls the **public MLB Stats API** directly (via the
+[`MLB-StatsAPI`](https://pypi.org/project/MLB-StatsAPI/) package) — no server,
+no API key. For an in-progress game it joins the play-by-play, the
+win-probability feed (win prob + Leverage Index), and the live linescore, then
+computes **RE24** locally from a static league-average run-expectancy matrix
+(Tom Tango / Retrosheet). It prints one Waybar JSON line per update — every 30s
+during a game, every 10 min when idle — and emits nothing (hides) when there's no
+game and nothing scheduled.
 
-`bluejays_waybar.py` prints one Waybar JSON object per line. When no Blue Jays
-game is live it shows the next scheduled game; when nothing is upcoming it emits
-`{}` (the module hides itself).
+WPA is shown from your team's perspective (positive = your win probability rose);
+RE24 is batting-team-relative.
 
 ## Prerequisites
 
-- The `bluejays-dashboard` backend venv exists at
-  `~/Projects/bluejays-dashboard/backend/.venv` (it provides `statsapi` and the
-  `services` package). First-time setup is in that project's `CLAUDE.md`.
-- `ttf-font-awesome` (already used by the existing Waybar config) for the ``
-  baseball glyph.
+- Python 3.10+
+- Waybar
+- A **Nerd Font** or `ttf-font-awesome` for the `` baseball glyph (or remove
+  `GLYPH` in `wayball.py`)
 
 ## Install
 
-1. **Test it renders** (no live game needed — render a finished game):
+```bash
+git clone https://github.com/<you>/wayball
+cd wayball
+WAYBALL_TEAM=TOR ./install.sh     # creates .venv, installs the one dependency
+```
 
-   ```bash
-   ~/Projects/bluejays-dashboard/backend/.venv/bin/python \
-     ~/Projects/wayball/bluejays_waybar.py --once --game-id 824834
-   ```
+`install.sh` prints a ready-to-paste Waybar module block and `on-click` with the
+absolute paths already filled in. Add `"custom/mlb"` to your bar's
+`modules-right`, paste the block into `~/.config/waybar/config` (into **each**
+output block if your config has more than one), append `waybar/style.css` to
+`~/.config/waybar/style.css`, then reload:
 
-   You should get a JSON line with `text`, `tooltip`, and `class`. Run without
-   `--game-id` to see the live game or the next-game idle line.
+```bash
+killall -SIGUSR2 waybar
+```
 
-2. **Add the module** to `~/.config/waybar/config`. The config is an array of
-   output blocks — for **each** block:
-   - add `"custom/bluejays"` to `"modules-right"` (e.g. before `"clock"`);
-   - add the module object from [`waybar/module.jsonc`](waybar/module.jsonc).
+## Choosing a team
 
-3. **Add the styles** from [`waybar/style.css`](waybar/style.css) to
-   `~/.config/waybar/style.css`.
+Set it via `--team` (in the Waybar `exec`) or the `WAYBALL_TEAM` env var — any
+MLB abbreviation (`TOR`, `NYY`, `LAD`, `BOS`, …) or a numeric team id. Default
+is `TOR`. Pass the same abbreviation to `gameday.sh` in `on-click` so the click
+handler finds the right state file.
 
-4. **Reload Waybar**:
+To match the pill color to your team, edit the `#custom-mlb` background in
+`waybar/style.css`.
 
-   ```bash
-   killall -SIGUSR2 waybar   # or just restart it
-   ```
+## CLI
+
+```
+wayball.py [--team ABBR|ID] [--once] [--game-id N]
+  --team       team to follow (abbr or id); default $WAYBALL_TEAM or TOR
+  --once       print a single update and exit (default: loop forever)
+  --game-id N  render a specific (e.g. finished) game — handy for testing
+```
+
+```bash
+# Render a finished game without waiting for one to be live:
+.venv/bin/python wayball.py --once --team TOR --game-id 824834
+```
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `bluejays_waybar.py` | The module script (long-running; one JSON line per update). |
-| `open-dashboard.sh` | `on-click` target — opens localhost:5173, booting the dashboard if it's down. |
-| `waybar/module.jsonc` | The `custom/bluejays` config block to merge. |
-| `waybar/style.css` | The `#custom-bluejays` styles to merge. |
-
-## CLI
-
-```
-bluejays_waybar.py [--once] [--game-id N]
-  --once       print a single update and exit (default: loop forever)
-  --game-id N  render a specific (e.g. finished) game — handy for testing
-```
+| `wayball.py` | The module — formats the Waybar JSON; long-running loop. |
+| `mlb.py` | MLB Stats API access (team resolution, live winprob, next game). |
+| `re24.py` | Local RE24 / WPA / leverage computation from the play-by-play. |
+| `gameday.sh` | `on-click` — opens the current game's MLB Gameday page. |
+| `install.sh` | Creates the venv and prints the Waybar config snippet. |
+| `waybar/` | The `custom/mlb` config + `#custom-mlb` style snippets. |
 
 ## Notes
 
-- Thresholds and colors are copied from the dashboard's `LivePlayByPlay.tsx`
-  (`LI_ELEVATED=1.5`, `LI_HIGH=2.5`, CLUTCH at |WPA| ≥ 7%, etc.) so the bar stays
-  visually consistent with the web module.
-- WPA in the tooltip is always shown from the Blue Jays' perspective (positive =
-  TOR's win probability rose); RE24 is batting-team-relative, as in the dashboard.
-- Any error emits `{}` and the loop continues, so a network blip or bad game id
-  hides the module rather than crashing the bar.
+- Any error emits `{}` and the loop continues, so a network blip hides the module
+  rather than crashing the bar.
+- Not affiliated with or endorsed by MLB. Uses publicly available MLB Stats API
+  data; see MLB's terms regarding use of their content.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

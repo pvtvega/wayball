@@ -1,27 +1,27 @@
-/* Blue Jays live-score module — append to ~/.config/waybar/style.css.
-   Matches the sibling pill modules (padding/margin from the existing #clock,
-   #cpu, ... rule). */
+/* wayball — append to ~/.config/waybar/style.css.
+   Matches typical pill modules (padding/margin). Recolor #custom-mlb's
+   background to your team's color if you like. */
 
-#custom-bluejays {
+#custom-mlb {
     padding: 0 10px;
     margin: 6px 3px;
-    background-color: #134A8E; /* Blue Jays blue */
+    background-color: #134A8E; /* team accent */
     color: #ffffff;
 }
 
-/* TOR trailing: dim it a touch */
-#custom-bluejays.trailing {
-    background-color: #1D2D5C; /* navy */
+/* Your team trailing: dim it a touch */
+#custom-mlb.trailing {
+    background-color: #1D2D5C;
 }
 
 /* High-leverage moment: red accent to grab attention */
-#custom-bluejays.high-leverage {
+#custom-mlb.high-leverage {
     background-color: #E8291C;
     color: #ffffff;
 }
 
 /* No live game (showing the next scheduled game): muted */
-#custom-bluejays.idle {
+#custom-mlb.idle {
     background-color: #2A3F6B;
     color: #9DB0D6;
 }

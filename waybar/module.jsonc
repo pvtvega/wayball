@@ -1,13 +1,15 @@
-// Blue Jays live-score module — merge into ~/.config/waybar/config.
+// wayball — live MLB score module. Merge into ~/.config/waybar/config.
 //
-// 1. Add "custom/bluejays" to each output block's "modules-right" array
-//    (e.g. just before "clock").
-// 2. Add this object into each output block (the config is an array of 3
-//    near-identical output objects — add it to all of them).
-"custom/bluejays": {
-    "exec": "/home/keith/Projects/bluejays-dashboard/backend/.venv/bin/python /home/keith/Projects/wayball/bluejays_waybar.py",
+// Replace <WAYBALL_DIR> with the absolute path to this repo and TOR with your
+// team's abbreviation. `./install.sh` prints this block with the paths already
+// filled in.
+//
+// 1. Add "custom/mlb" to each output block's "modules-right" array.
+// 2. Add this object to each output block.
+"custom/mlb": {
+    "exec": "<WAYBALL_DIR>/.venv/bin/python <WAYBALL_DIR>/wayball.py --team TOR",
     "return-type": "json",
     "restart-interval": 5,
     "tooltip": true,
-    "on-click": "/home/keith/Projects/wayball/open-dashboard.sh"
+    "on-click": "<WAYBALL_DIR>/gameday.sh TOR"
 }
