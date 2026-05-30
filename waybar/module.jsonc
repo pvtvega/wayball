@@ -1,0 +1,13 @@
+// Blue Jays live-score module — merge into ~/.config/waybar/config.
+//
+// 1. Add "custom/bluejays" to each output block's "modules-right" array
+//    (e.g. just before "clock").
+// 2. Add this object into each output block (the config is an array of 3
+//    near-identical output objects — add it to all of them).
+"custom/bluejays": {
+    "exec": "/home/keith/Projects/bluejays-dashboard/backend/.venv/bin/python /home/keith/Projects/wayball/bluejays_waybar.py",
+    "return-type": "json",
+    "restart-interval": 5,
+    "tooltip": true,
+    "on-click": "/home/keith/Projects/wayball/open-dashboard.sh"
+}
