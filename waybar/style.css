@@ -25,3 +25,18 @@
     background-color: #2A3F6B;
     color: #9DB0D6;
 }
+
+/* Tooltip: the scorebug is a btop-style <tt> box drawn in Pango; give it a
+   dark terminal panel to sit on. NOTE: `tooltip` is global to Waybar (GTK
+   offers no per-module selector), so this styles every module's tooltip. */
+tooltip {
+    background-color: #10141f;
+    border: 1px solid #3B527F;
+    border-radius: 6px;
+}
+
+tooltip label {
+    color: #CDD6F4;
+    padding: 6px 8px;
+    font-family: monospace;
+}
