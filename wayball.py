@@ -91,10 +91,13 @@ def span(text: str, color: str, *, bold: bool = False) -> str:
 
 
 # --- btop-style box drawing --------------------------------------------------
-# The tooltip renders as one <tt> block: a rounded-corner box with lowercase
+# The tooltip renders as one monospace block: a rounded-corner box with lowercase
 # section titles embedded in the rules and block meters for the live numbers.
 # Pango markup length != visible width, so every piece is a (markup, width)
 # Cell and the Box sizes/pads itself at render time.
+# The monospace font comes from the tooltip CSS (waybar/style.css), NOT from
+# <tt>: Pango's <tt> forces the generic Monospace family, which may lack the
+# box/shape glyphs and substitute mixed-width fallbacks, skewing the columns.
 BOX_MIN_W = 26   # minimum inner width (columns between the side borders)
 METER_W = 14     # meter width in cells
 EV_W = 17        # event-name column width in the play log
@@ -318,7 +321,7 @@ def build_live(d: dict) -> dict:
 
     box.hint("click ⇒ gameday")
     url = _GAMEDAY.format(d["game_id"]) if d.get("game_id") else _SCORES
-    return {"text": text, "tooltip": f"<tt>{box.render()}</tt>",
+    return {"text": text, "tooltip": box.render(),
             "class": classes, "_url": url}
 
 
@@ -351,7 +354,7 @@ def build_idle(g: dict, team_id: int) -> dict:
     box.hint("click ⇒ gameday")
 
     url = _GAMEDAY.format(g["game_id"]) if g.get("game_id") else _SCORES
-    return {"text": text, "tooltip": f"<tt>{box.render()}</tt>",
+    return {"text": text, "tooltip": box.render(),
             "class": ["idle"], "_url": url}
 
 

@@ -38,5 +38,9 @@ tooltip {
 tooltip label {
     color: #CDD6F4;
     padding: 6px 8px;
-    font-family: monospace;
+    /* Pick a mono font with real box-drawing/geometric-shape coverage
+       (Hack, JetBrains Mono, any Nerd Font). A generic `monospace` alias
+       often lacks ◆●▼█ and substitutes proportional glyphs, which breaks
+       the scorebug's column alignment. */
+    font-family: "Hack", "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
 }
